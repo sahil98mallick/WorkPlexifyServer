@@ -428,7 +428,6 @@ router.get('/completedjobs', (req, res, next) => {
         });
 });
 
-
 // Calculate and display total amounts for each user's clients
 router.get('/clientstotalamounts/:userID', async (req, res, next) => {
     try {
@@ -471,6 +470,46 @@ router.get('/clientstotalamounts/:userID', async (req, res, next) => {
     }
 });
 
+// Calculate and display total job amounts for a user
+router.get('/overalljobamounts/:userID', async (req, res, next) => {
+    try {
+        const { userID } = req.params;
+
+        // Use the aggregation framework to calculate total job amounts for the user
+        const totalJobAmountsByUser = await WorkPlexifyJobdetails.aggregate([
+            {
+                $match: { userID: userID },
+            },
+            {
+                $group: {
+                    _id: null,
+                    totalJobAmount: { $sum: { $toDouble: '$actualprice' } }, // Assuming actualprice is a numeric field
+                },
+            },
+        ]);
+
+        if (totalJobAmountsByUser && totalJobAmountsByUser.length > 0) {
+            res.status(200).json({
+                success: true,
+                message: 'Total job amounts calculated successfully',
+                totalJobAmount: totalJobAmountsByUser[0].totalJobAmount,
+            });
+        } else {
+            res.status(200).json({
+                success: true,
+                message: 'No data found for total job amounts',
+                totalJobAmount: 0,
+            });
+        }
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({
+            success: false,
+            message: 'Failed to calculate total job amounts',
+            error: error.message,
+        });
+    }
+});
 
 
 
