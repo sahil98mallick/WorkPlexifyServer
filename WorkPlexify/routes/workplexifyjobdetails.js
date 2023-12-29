@@ -511,7 +511,73 @@ router.get('/overalljobamounts/:userID', async (req, res, next) => {
     }
 });
 
+// Find Ongoing Jobs Details for a User
+router.get('/ongoingjobs/:userID', async (req, res, next) => {
+    try {
+        const { userID } = req.params;
 
+        // Find ongoing jobs for the user where jobstatus is true
+        const ongoingJobs = await WorkPlexifyJobdetails.find({
+            userID: userID,
+            jobstatus: true,
+        });
+
+        if (ongoingJobs && ongoingJobs.length > 0) {
+            res.status(200).json({
+                success: true,
+                message: 'Ongoing jobs details retrieved successfully',
+                ongoingJobs: ongoingJobs,
+            });
+        } else {
+            res.status(200).json({
+                success: true,
+                message: 'No ongoing jobs found for the user',
+                ongoingJobs: [],
+            });
+        }
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({
+            success: false,
+            message: 'Failed to retrieve ongoing jobs details',
+            error: error.message,
+        });
+    }
+});
+
+// Find Completed Jobs Details for a User
+router.get('/completedjobs/:userID', async (req, res, next) => {
+    try {
+        const { userID } = req.params;
+
+        // Find completed jobs for the user where jobstatus is false
+        const completedJobs = await WorkPlexifyJobdetails.find({
+            userID: userID,
+            jobstatus: false,
+        });
+
+        if (completedJobs && completedJobs.length > 0) {
+            res.status(200).json({
+                success: true,
+                message: 'Completed jobs details retrieved successfully',
+                completedJobs: completedJobs,
+            });
+        } else {
+            res.status(200).json({
+                success: true,
+                message: 'No completed jobs found for the user',
+                completedJobs: [],
+            });
+        }
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({
+            success: false,
+            message: 'Failed to retrieve completed jobs details',
+            error: error.message,
+        });
+    }
+});
 
 
 module.exports = router
