@@ -579,5 +579,110 @@ router.get('/completedjobs/:userID', async (req, res, next) => {
     }
 });
 
+// Fetch Present Month's Total Incomes by Clients
+router.get('/presentmonthincomes/:userID', async (req, res, next) => {
+    try {
+        const { userID } = req.params;
+
+        // Get the current date and extract the year and month
+        const currentDate = new Date();
+        const currentYear = currentDate.getFullYear();
+        const currentMonth = currentDate.getMonth() + 1; // Month is 0-indexed, so add 1
+
+        // Construct the start and end date for the present month
+        const startDate = new Date(`${currentYear}-${currentMonth.toString().padStart(2, '0')}-01T00:00:00.000Z`);
+        const endDate = new Date(currentDate);
+        endDate.setMonth(endDate.getMonth() + 1, 0); // Set to the last day of the current month
+
+        // Build the query conditions based on the provided parameters
+        const queryConditions = {
+            userID: userID,
+            startdate: { $gte: startDate, $lt: endDate },
+        };
+
+        // Use the aggregation framework to calculate total incomes by clients
+        const totalIncomesByClients = await WorkPlexifyJobdetails.aggregate([
+            { $match: queryConditions },
+            {
+                $group: {
+                    _id: '$clientname',
+                    totalIncome: { $sum: { $toDouble: '$actualprice' } }, // Assuming actualprice is a numeric field
+                },
+            },
+        ]);
+
+        if (totalIncomesByClients && totalIncomesByClients.length > 0) {
+            res.status(200).json({
+                success: true,
+                message: 'Present month\'s total incomes by clients retrieved successfully',
+                totalIncomesByClients: totalIncomesByClients,
+            });
+        } else {
+            res.status(200).json({
+                success: true,
+                message: 'No data found for present month\'s total incomes by clients',
+                totalIncomesByClients: [],
+            });
+        }
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({
+            success: false,
+            message: 'Failed to retrieve present month\'s total incomes by clients',
+            error: error.message,
+        });
+    }
+});
+
+// Fetch Present Month's Total Incomes by Clients for All Users (Admin Portal)
+router.get('/presentmonthallincomes', async (req, res, next) => {
+    try {
+        // Get the current date and extract the year and month
+        const currentDate = new Date();
+        const currentYear = currentDate.getFullYear();
+        const currentMonth = currentDate.getMonth() + 1;
+
+        // Construct the start and end date for the present month
+        const startDate = new Date(`${currentYear}-${currentMonth.toString().padStart(2, '0')}-01T00:00:00.000Z`);
+        const endDate = new Date(currentDate);
+        endDate.setMonth(endDate.getMonth() + 1, 0);
+        const queryConditions = {
+            startdate: { $gte: startDate, $lt: endDate },
+        };
+
+        const totalIncomesByClients = await WorkPlexifyJobdetails.aggregate([
+            { $match: queryConditions },
+            {
+                $group: {
+                    _id: '$clientname',
+                    totalIncome: { $sum: { $toDouble: '$actualprice' } },
+                },
+            },
+        ]);
+
+        if (totalIncomesByClients && totalIncomesByClients.length > 0) {
+            res.status(200).json({
+                success: true,
+                message: 'Present month\'s total incomes by clients for all users retrieved successfully',
+                totalIncomesByClients: totalIncomesByClients,
+            });
+        } else {
+            res.status(200).json({
+                success: true,
+                message: 'No data found for present month\'s total incomes by clients for all users',
+                totalIncomesByClients: [],
+            });
+        }
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({
+            success: false,
+            message: 'Failed to retrieve present month\'s total incomes by clients for all users',
+            error: error.message,
+        });
+    }
+});
+
+
 
 module.exports = router
