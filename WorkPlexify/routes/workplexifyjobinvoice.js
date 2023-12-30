@@ -50,7 +50,7 @@ router.post('/generateinvoice', async (req, res) => {
         });
 
         if (existingInvoice) {
-            return res.status(400).json({
+            return res.status(201).json({
                 success: false,
                 message: 'Duplicate invoice found within the specified date range',
                 invoiceData: existingInvoice,
