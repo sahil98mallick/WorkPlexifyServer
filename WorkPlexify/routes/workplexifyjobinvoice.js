@@ -65,10 +65,10 @@ router.post('/generateinvoice', async (req, res) => {
         });
 
         if (jobs.length === 0) {
-            return res.status(400).json({
-                success: true,
+            return res.status(201).json({
+                success: false,
                 message: 'No jobs found for the specified client or date range',
-                invoiceData: [null],
+                invoiceData: [],
             });
         }
 
