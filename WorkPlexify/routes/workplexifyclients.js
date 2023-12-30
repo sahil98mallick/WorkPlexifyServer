@@ -130,7 +130,6 @@ router.get('/clientsbyuserid/:userID', (req, res, next) => {
         });
 });
 
-
 // Delete the clients by Id
 router.delete('/deleteclient/:id', (req, res) => {
     WorkPlexifyClients.deleteOne({ _id: req.params.id })

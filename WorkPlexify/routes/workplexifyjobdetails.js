@@ -8,6 +8,7 @@ function convertToDate(dateString) {
     const [day, month, year] = dateString.split('/');
     return new Date(`${year}-${month}-${day}`);
 }
+
 // Add Job Details
 router.post('/addjobdetails', (req, res, next) => {
     const jobData = new WorkPlexifyJobdetails({
@@ -74,6 +75,7 @@ router.get('/alljobs', ((req, res, next) => {
             })
         })
 }))
+
 // View Jobs by UserID
 router.get('/jobsbyuserid/:userID', (req, res, next) => {
     const { userID } = req.params;
@@ -204,6 +206,7 @@ router.put('/updatejob/:id', (req, res, next) => {
             });
         });
 });
+
 // Update Job Details
 router.put('/updatejobstatus/:id', (req, res, next) => {
     const jobId = req.params.id;
@@ -587,12 +590,12 @@ router.get('/presentmonthincomes/:userID', async (req, res, next) => {
         // Get the current date and extract the year and month
         const currentDate = new Date();
         const currentYear = currentDate.getFullYear();
-        const currentMonth = currentDate.getMonth() + 1; // Month is 0-indexed, so add 1
+        const currentMonth = currentDate.getMonth() + 1;
 
         // Construct the start and end date for the present month
         const startDate = new Date(`${currentYear}-${currentMonth.toString().padStart(2, '0')}-01T00:00:00.000Z`);
         const endDate = new Date(currentDate);
-        endDate.setMonth(endDate.getMonth() + 1, 0); // Set to the last day of the current month
+        endDate.setMonth(endDate.getMonth() + 1, 0);
 
         // Build the query conditions based on the provided parameters
         const queryConditions = {
@@ -606,7 +609,7 @@ router.get('/presentmonthincomes/:userID', async (req, res, next) => {
             {
                 $group: {
                     _id: '$clientname',
-                    totalIncome: { $sum: { $toDouble: '$actualprice' } }, // Assuming actualprice is a numeric field
+                    totalIncome: { $sum: { $toDouble: '$actualprice' } },
                 },
             },
         ]);
@@ -615,6 +618,7 @@ router.get('/presentmonthincomes/:userID', async (req, res, next) => {
             res.status(200).json({
                 success: true,
                 message: 'Present month\'s total incomes by clients retrieved successfully',
+                month: currentMonth,
                 totalIncomesByClients: totalIncomesByClients,
             });
         } else {
