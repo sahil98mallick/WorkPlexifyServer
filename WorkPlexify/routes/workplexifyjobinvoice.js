@@ -42,6 +42,21 @@ router.post('/generateinvoice', async (req, res) => {
             });
         }
 
+        // Check if an invoice already exists for the given client, user, and date range
+        const existingInvoice = await WorkPlexifyInvoice.findOne({
+            userId: userId,
+            client: client._id,
+            invoiceDate: { $gte: start, $lt: end },
+        });
+
+        if (existingInvoice) {
+            return res.status(400).json({
+                success: false,
+                message: 'Duplicate invoice found within the specified date range',
+                invoiceData: existingInvoice,
+            });
+        }
+
         // Find jobs for the specified client and within the date range
         const jobs = await WorkPlexifyJobDetails.find({
             userID: userId,
