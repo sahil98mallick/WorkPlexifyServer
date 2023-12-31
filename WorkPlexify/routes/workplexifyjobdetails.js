@@ -175,7 +175,7 @@ router.put('/updatejob/:id', (req, res, next) => {
         actualprice: req.body.actualprice,
         writeprice: req.body.writeprice,
         jobdetails: req.body.jobdetails,
-        createdAt: new Date(),
+        // createdAt: new Date(),
     };
 
     WorkPlexifyJobdetails.findByIdAndUpdate(jobId, updateData, { new: true })
